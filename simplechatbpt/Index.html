@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valenin IT Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+        .chat-container {
+            width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .chat-box {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background: #fff;
+            border-radius: 5px;
+        }
+        .chat-input {
+            width: calc(100% - 60px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .send-btn {
+            padding: 10px;
+            background: #2d6a4f;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h2>Chat with Valenin Bot</h2>
+        <div class="chat-box" id="chat-box"></div>
+        <input type="text" id="user-input" class="chat-input" placeholder="Type a message...">
+        <button onclick="sendMessage()" class="send-btn">Send</button>
+    </div>
+
+    <script>
+        
+        async function sendMessage() {
+            const userInput = document.getElementById("user-input").value;
+            if (!userInput) return;
+
+            const chatBox = document.getElementById("chat-box");
+            chatBox.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
+            document.getElementById("user-input").value = "";
+
+            try {
+                // Debugging: Ensure token is correctly included
+                console.log("Sending request with headers:", {
+                    "Authorization": `Bearer ${APPLICATION_TOKEN.trim()}`,
+                    "Content-Type": "application/json"
+                });
+
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${APPLICATION_TOKEN.trim()}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        "input_value": userInput,
+                        "output_type": "chat",
+                        "input_type": "chat",
+                        "tweaks": {}
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                chatBox.innerHTML += `<p><strong>Bot:</strong> ${data.response || "No response from bot."}</p>`;
+            } catch (error) {
+                console.error("Fetch error:", error);
+                chatBox.innerHTML += `<p style="color:red;"><strong>Error:</strong> ${error.message}</p>`;
+            }
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
